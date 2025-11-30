@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بنك كيمياء - التعليم المتطور</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1a2a6c;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --easy: #2ecc71;
+            --medium: #f39c12;
+            --hard: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --card-bg: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #2c3e50);
+            color: var(--light);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* شاشة التسجيل */
+        .register-screen {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: #000000;
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .register-content {
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .register-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: var(--light);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: right;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            font-size: 1rem;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        /* باقي الستايلات تبقى كما هي */
+        /* ... */
+
+    </style>
+</head>
+<body>
+    <!-- تأثيرات الخلفية -->
+    <div class="floating-elements">
+        <div class="floating-element" style="width: 100px; height: 100px; top: 10%; right: 10%; animation-delay: 0s;"></div>
+        <div class="floating-element" style="width: 150px; height: 150px; top: 20%; left: 5%; animation-delay: 2s;"></div>
+        <div class="floating-element" style="width: 80px; height: 80px; bottom: 20%; right: 20%; animation-delay: 4s;"></div>
+        <div class="floating-element" style="width: 120px; height: 120px; bottom: 10%; left: 10%; animation-delay: 6s;"></div>
+    </div>
+
+    <!-- شاشة التسجيل -->
+    <div class="register-screen" id="register-screen">
+        <div class="register-content">
+            <h2 class="register-title">تسجيل الطالب</h2>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="student-name">اسم الطالب:</label>
+                    <input type="text" id="student-name" required placeholder="أدخل اسمك الكامل">
+                </div>
+                <div class="form-group">
+                    <label for="student-class">الشعبة:</label>
+                    <select id="student-class" required>
+                        <option value="">اختر الشعبة</option>
+                        <option value="1">الشعبة 1</option>
+                        <option value="2">الشعبة 2</option>
+                        <option value="3">الشعبة 3</option>
+                        <option value="4">الشعبة 4</option>
+                        <option value="5">الشعبة 5</option>
+                        <option value="6">الشعبة 6</option>
+                        <option value="7">الشعبة 7</option>
+                    </select>
+                </div>
+                <button type="submit" class="cta-button" style="width: 100%;">بدء الاختبارات</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- باقي الهيكل يبقى كما هو -->
+    <!-- ... -->
+
+    <script>
+        // بيانات التطبيق
+        let currentStudent = null;
+        let currentChapter = null;
+        let currentLevel = null;
+        let selectedTime = 20;
+        let timerInterval = null;
+        let timeLeft = 0;
+        let userAnswers = {};
+        let currentQuestions = [];
+
+        // بيانات الأسئلة (مبسطة للعرض)
+        const questionsDatabase = {
+            1: {
+                easy: [
+                    { id: 1, question: "علم الكيمياء هو علم يدرس:", options: ["الفضاء", "تركيب المادة وتغيراتها", "النباتات"], correct: 1 },
+                    { id: 2, question: "المادة الكيميائية تمتاز بأنها:", options: ["ليس لها تركيب", "لها تركيب محدد وثابت", "تتغير كل ثانية"], correct: 1 }
+                ],
+                medium: [
+                    { id: 11, question: "سبب استخدام CFC سابقًا هو:", options: ["أنها سامة", "مستقرة وغير قابلة للاشتعال", "رخيصة جدًا فقط"], correct: 1 }
+                ],
+                hard: [
+                    { id: 21, question: "ارتفاع UVB يؤثر على السلسلة الغذائية لأنه:", options: ["يزيد النباتات", "يضر العوالق البحرية", "يزيد الغلاف الجوي"], correct: 1 }
+                ]
+            },
+            2: {
+                easy: [
+                    { id: 31, question: "الجدول الدوري يرتب العناصر حسب:", options: ["العدد الكتلي", "العدد الذري", "عدد النظائر"], correct: 1 }
+                ],
+                medium: [
+                    { id: 41, question: "الفرق في الكهروسالبية بين Na و Cl يدل على تكوّن رابطة:", options: ["تساهمية", "أيونية", "فلزية"], correct: 1 }
+                ],
+                hard: [
+                    { id: 51, question: "تفسير قوة الرابطة الأيونية يعتمد على علاقة طردية بين:", options: ["الشحنة والمسافة", "الكتلة والمسافة", "الكتلة والسرعة"], correct: 0 }
+                ]
+            }
+        };
+
+        // أحداث التسجيل - الإصلاح هنا
+        document.getElementById('register-form').addEventListener('submit', function(e) {
+            e.preventDefault(); // هذه السطر يمنع إعادة تحميل الصفحة
+            
+            const studentName = document.getElementById('student-name').value;
+            const studentClass = document.getElementById('student-class').value;
+            
+            if (!studentName || !studentClass) {
+                alert('يرجى ملء جميع الحقول');
+                return;
+            }
+            
+            currentStudent = {
+                name: studentName,
+                class: studentClass
+            };
+            
+            // إخفاء شاشة التسجيل وإظهار الموقع
+            document.getElementById('register-screen').style.display = 'none';
+            document.getElementById('main-nav').style.display = 'block';
+            document.getElementById('home').style.display = 'flex';
+            document.getElementById('chapters').style.display = 'block';
+            document.getElementById('main-footer').style.display = 'block';
+            
+            window.scrollTo(0, 0);
+        });
+
+        // أحداث الأزرار
+        document.querySelectorAll('.start-chapter').forEach(button => {
+            button.addEventListener('click', function() {
+                currentChapter = this.getAttribute('data-chapter');
+                document.getElementById('chapters').style.display = 'none';
+                document.getElementById('levels').style.display = 'block';
+                window.scrollTo(0, 0);
+            });
+        });
+
+        document.querySelectorAll('.select-level').forEach(button => {
+            button.addEventListener('click', function() {
+                currentLevel = this.getAttribute('data-level');
+                document.getElementById('levels').style.display = 'none';
+                document.getElementById('time-selection').style.display = 'block';
+                
+                // عرض معلومات الطالب
+                document.getElementById('current-student-info').innerHTML = `
+                    <strong>الطالب:</strong> ${currentStudent.name} | 
+                    <strong>الشعبة:</strong> ${currentStudent.class}
+                `;
+                
+                window.scrollTo(0, 0);
+            });
+        });
+
+        document.querySelectorAll('.time-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.time-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+                selectedTime = parseInt(this.getAttribute('data-time'));
+            });
+        });
+
+        document.querySelector('.start-test').addEventListener('click', function() {
+            if (!selectedTime) {
+                alert('يرجى اختيار مدة الاختبار');
+                return;
+            }
+            startTest();
+        });
+
+        // بدء الاختبار
+        function startTest() {
+            document.getElementById('time-selection').style.display = 'none';
+            document.getElementById('test-screen').style.display = 'block';
+            
+            // تحميل الأسئلة
+            currentQuestions = questionsDatabase[currentChapter][currentLevel];
+            userAnswers = {};
+            
+            // عرض الأسئلة
+            displayQuestions();
+            
+            // بدء المؤقت
+            timeLeft = selectedTime * 60;
+            startTimer();
+        }
+
+        // عرض الأسئلة
+        function displayQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+            
+            currentQuestions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-container';
+                questionDiv.innerHTML = `
+                    <div class="question-text">${index + 1}) ${q.question}</div>
+                    <div class="options-container">
+                        ${q.options.map((option, optIndex) => `
+                            <div class="option" data-question="${q.id}" data-option="${optIndex}">
+                                ${String.fromCharCode(1570 + optIndex)}) ${option}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="feedback correct" style="display: none;">
+                        الإجابة الصحيحة: ${String.fromCharCode(1570 + q.correct)}) ${q.options[q.correct]}
+                    </div>
+                `;
+                container.appendChild(questionDiv);
+            });
+            
+            // إضافة أحداث للخيارات
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const questionId = this.getAttribute('data-question');
+                    const optionIndex = parseInt(this.getAttribute('data-option'));
+                    
+                    userAnswers[questionId] = optionIndex;
+                    
+                    // إظهار الإجابة الصحيحة
+                    const question = currentQuestions.find(q => q.id == questionId);
+                    const feedback = this.parentElement.nextElementSibling;
+                    feedback.style.display = 'block';
+                    
+                    // تلوين الإجابات
+                    this.parentElement.querySelectorAll('.option').forEach(opt => {
+                        opt.classList.remove('correct', 'incorrect');
+                    });
+                    
+                    if (optionIndex === question.correct) {
+                        this.classList.add('correct');
+                    } else {
+                        this.classList.add('incorrect');
+                        this.parentElement.querySelector(`.option[data-option="${question.correct}"]`).classList.add('correct');
+                    }
+                });
+            });
+        }
+
+        // المؤقت
+        function startTimer() {
+            updateTimerDisplay();
+            timerInterval = setInterval(function() {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    endTest();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // إنهاء الاختبار
+        function endTest() {
+            clearInterval(timerInterval);
+            document.getElementById('test-screen').style.display = 'none';
+            showResults();
+        }
+
+        function submitTest() {
+            endTest();
+        }
+
+        // عرض النتائج
+        function showResults() {
+            let correct = 0;
+            currentQuestions.forEach(q => {
+                if (userAnswers[q.id] === q.correct) {
+                    correct++;
+                }
+            });
+            
+            const score = correct;
+            const total = currentQuestions.length;
+            const percentage = (correct / total) * 100;
+            
+            document.getElementById('final-score').textContent = `${score}/${total}`;
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+            
+            // عرض معلومات الطالب في النتائج
+            document.getElementById('results-student-info').innerHTML = `
+                <strong>الطالب:</strong> ${currentStudent.name} | 
+                <strong>الشعبة:</strong> ${currentStudent.class} |
+                <strong>القسم:</strong> ${getChapterName(currentChapter)} |
+                <strong>المستوى:</strong> ${getLevelName(currentLevel)}
+            `;
+            
+            let message = '';
+            if (percentage >= 80) {
+                message = 'ممتاز! أداء رائع';
+            } else if (percentage >= 60) {
+                message = 'جيد جداً! يمكنك التحسين';
+            } else {
+                message = 'تحتاج للمزيد من الممارسة';
+            }
+            
+            document.getElementById('result-message').textContent = message;
+            document.getElementById('results-screen').style.display = 'block';
+        }
+
+        function getChapterName(chapter) {
+            const names = {
+                1: 'أساسيات الكيمياء',
+                2: 'الجدول الدوري والروابط'
+            };
+            return names[chapter] || 'غير معروف';
+        }
+
+        function getLevelName(level) {
+            const names = {
+                easy: 'سهل',
+                medium: 'متوسط',
+                hard: 'صعب'
+            };
+            return names[level] || 'غير معروف';
+        }
+
+        function closeResults() {
+            document.getElementById('results-screen').style.display = 'none';
+            document.getElementById('chapters').style.display = 'block';
+            document.getElementById('levels').style.display = 'none';
+            document.getElementById('time-selection').style.display = 'none';
+            window.scrollTo(0, 0);
+        }
+
+        // تأثيرات الخلفية
+        function createFloatingElements() {
+            const container = document.querySelector('.floating-elements');
+            const symbols = ['🧪', '⚗️', '🔬', '🧫', '🧴', '💧', '🔥', '💨'];
+            
+            for (let i = 0; i < 15; i++) {
+                const element = document.createElement('div');
+                element.className = 'floating-element';
+                element.style.width = `${Math.random() * 80 + 40}px`;
+                element.style.height = element.style.width;
+                element.style.top = `${Math.random() * 100}%`;
+                element.style.right = `${Math.random() * 100}%`;
+                element.style.animationDelay = `${Math.random() * 15}s`;
+                element.style.animationDuration = `${Math.random() * 20 + 10}s`;
+                element.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
+                element.style.fontSize = `${Math.random() * 20 + 10}px`;
+                element.style.display = 'flex';
+                element.style.alignItems = 'center';
+                element.style.justifyContent = 'center';
+                container.appendChild(element);
+            }
+        }
+
+        createFloatingElements();
+    </script>
+</body>
+</html>
